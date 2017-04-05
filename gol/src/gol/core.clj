@@ -22,23 +22,37 @@
    [0 0 0 0 0 0 0 0 0 0 0]
    [0 0 0 0 0 0 0 0 0 0 0]])
 
-
+;;; TODO make this more beautiful
 (defn rule
   "Gets the neighbor count and whether the cell is alive,
    returns 0 iff the cell should die."
   [ncount alive?]
-  alive?)
+    (if (and (<= 2 ncount 3) (= alive? 1))
+      1
+      (if (and (= ncount 3)) 
+        1
+        0)))
 
+(def sum #(reduce + %))
+
+(defn neighbor-coordinates
+  [world [x y]]
+  (for [n  [(dec x) x (inc x)] m [(dec y) y (inc y)]
+    :when (or (not= x n) (not= y m))]
+    [n m]))  
 
 (defn compute-neighbor-count
   "Computes the number of alive neighbors for the cell at position x y"
   [world [x y]]
-  0)
-
+  (sum (map (partial element-at world) (neighbor-coordinates world [x y]))))
+   
 (defn update-world
   "Computes the next generation."
   [world]
-  world)
+  (for [y' (range (world-height world))]
+    (for [x' (range (world-width world))]
+      (rule (compute-neighbor-count world [x' y'])
+            (element-at world [x' y'])))))
 
 (comment
   ;; Visualisierung anzeigen
